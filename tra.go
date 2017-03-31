@@ -112,18 +112,23 @@ tk = sM(str).replace('&tk=', '')
 
 	return tkStr
 }
-func getUrl(str string, from string, to string) string {
-	Static := "https://translate.google.cn/translate_a/single?client=t&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=7"
+func getUrl(str string, from string, to string, dt []string) string {
+	//Static := "https://translate.google.cn/translate_a/single?client=t&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=7"
+	Static := "https://translate.google.cn/translate_a/single?client=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=7"
 	urls := Static + "&q=" + url.QueryEscape(str)
 	urls = urls + "&sl=" + from
 	urls = urls + "&tl=" + to
 	urls = urls + "&hl=" + to
 	urls = urls + "&tk=" + gettk(str)
 
+	for i := range dt {
+		urls = urls + "&dt=" + dt[i]
+	}
 	return urls
 }
-func TranslateT(str string, from string, to string) string {
-	urls := getUrl(str, from, to)
+func TranslateT(str string, from string, to string, dt []string) string {
+	urls := getUrl(str, from, to, dt)
+
 	doc, err := goquery.NewDocument(urls)
 	if err != nil {
 		log.Fatal(err)
