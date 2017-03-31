@@ -21,16 +21,17 @@ import (
 )
 
 func main() {
-	str := gtra.TranslateT("hello world!", "en", "zh-cn")
+	str := gtra.TranslateT("hello world!", "en", "zh-cn", []string{"at", "ex"})
 	fmt.Println(str)
 }
+
 
 ```
 
 
 
 ## 说明
- func gtra.TranslateT(text, from, to)string
+ func gtra.TranslateT(text string, from string, to string, dt []string)string
  
  text要翻译的文字
  
@@ -143,4 +144,24 @@ langs = {
     'zu': 'Zulu'
 };
 ```
-返回数据没有处理，请自行处理
+
+ dt 返回的数据 取值请参考参考 http://stackoverflow.com/questions/26714426/what-is-the-meaning-of-google-translate-query-params
+ 
+ I'm developing an online translator app, and this is what I found out empirically:
+
+sl - source language code (auto for autodetection)
+tl - translation language
+q - source text / word
+ie - input encoding (a guess)
+oe - output encoding (a guess)
+dt - may be included more than once and specifies what to return in the reply.
+Here are some values for dt. If the value is set, the following data will be returned:
+
+t - translation of source text
+at - alternate translations
+rm - transcription / transliteration of source and translated texts
+bd - dictionary, in case source text is one word (you get translations with articles, reverse translations, etc.)
+md - definitions of source text, if it's one word
+ss - synonyms of source text, if it's one word
+ex - examples
+rw - See also list.
