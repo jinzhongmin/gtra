@@ -2,7 +2,7 @@
 
 golang实现的谷歌翻译api
 
-参考并使用了https://github.com/matheuss/google-translate-api的部分代码
+参考并使用了https://github.com/matheuss/google-translate-api 的部分代码
 
 ## 安装
 
