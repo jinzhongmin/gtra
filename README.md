@@ -31,7 +31,9 @@ func main() {
 
 ## 说明
  func gtra.TranslateT(text, from, to)string
+ 
  text要翻译的文字
+ 
  from,to的取值如下
  ```javascript
 langs = {
