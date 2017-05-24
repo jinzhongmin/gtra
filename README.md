@@ -2,12 +2,16 @@
 
 golang实现的谷歌翻译api
 
-参考并使用了https://github.com/matheuss/google-translate-api 的部分代码
+旧版本(tra.go_old)参考并使用了https://github.com/matheuss/google-translate-api 的部分代码
+旧版本中使用了javascript代码，代码冗余
+
+新版本(gtra.go) 参考了https://github.com/matheuss/google-translate-api的代码，精简了代码，全部换成了go
+bug：有时会出现403错误网页
 
 ## 安装
 
 ```bash
-go get github.com/jinzhongmin/gtra
+go get -u -v github.com/jinzhongmin/gtra
 ```
 
 ## 例子
@@ -21,7 +25,7 @@ import (
 )
 
 func main() {
-	str := gtra.TranslateT("hello world!", "en", "zh-cn", []string{"at", "ex"})
+	str := gtra.Translate("hello world!", "en", "zh-cn", []string{"t"})
 	fmt.Println(str)
 }
 
@@ -31,7 +35,7 @@ func main() {
 
 
 ## 说明
- func gtra.TranslateT(text string, from string, to string, dt []string)string
+ func gtra.Translate(text string, from string, to string, dt []string)string
  
  text要翻译的文字
  
