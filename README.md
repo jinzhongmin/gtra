@@ -2,10 +2,10 @@
 
 golang实现的谷歌翻译api
 
-旧版本(tra.go_old)参考并使用了https://github.com/matheuss/google-translate-api 的部分代码
+旧版本(tra.go_old)参考并使用了 https://github.com/matheuss/google-translate-api 的部分代码
 旧版本中使用了javascript代码，代码冗余
 
-新版本(gtra.go) 参考了https://github.com/matheuss/google-translate-api的代码，精简了代码，全部换成了go
+新版本(gtra.go) 参考了 https://github.com/matheuss/google-translate-api 的代码，精简了代码，全部换成了go
 bug：有时会出现403错误网页
 
 ## 安装
