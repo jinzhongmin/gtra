@@ -12,7 +12,7 @@ import (
 // func main() {
 // 	fmt.Println(gtra("hello world!", "en", "zh-cn", []string{"t"}))
 // }
-func TranslateT(str string, from string, to string, dt []string) string {
+func Translate(str string, from string, to string, dt []string) string {
 	return gtra(str, from, to, dt)
 }
 
