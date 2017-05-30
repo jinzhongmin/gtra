@@ -55,3 +55,6 @@ func (t *Translate) SetSl(sl string) *Translate
 	fmt.Println(s)
 ```
  
+#License
+
+MIT © Matheus Fernandes
