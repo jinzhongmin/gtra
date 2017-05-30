@@ -1,20 +1,89 @@
 package gtra
 
 import (
+	"errors"
+	"github.com/tidwall/gjson"
+	"gtra/lang"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
-// func main() {
-// 	fmt.Println(gtra("hello world!", "en", "zh-cn", []string{"t"}))
-// }
-func Translate(str string, from string, to string, dt []string) string {
-	return gtra(str, from, to, dt)
+type Translate struct {
+	str string
+
+	sl string
+	tl string
+	dt []string
 }
+
+func NewTra(str string) *Translate {
+	t := new(Translate)
+	t.str = str
+
+	t.sl = lang.AUTO
+	t.tl = lang.ZHCN
+	t.dt = []string{"at", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t"}
+
+	return t
+
+}
+func (t *Translate) tk() string {
+	tkki, tkkf := gettkk()
+	tki, tkf := gettk(int32(tkki), int32(tkkf), t.str)
+
+	return (strconv.Itoa(int(tki)) + "." + strconv.Itoa(int(tkf)))
+}
+func (t *Translate) url(tl string) string {
+	urls := "https://translate.google.cn/translate_a/single?"
+
+	urls = urls + "&client=gtx"
+	urls = urls + "&sl=" + t.sl
+	urls = urls + "&tl=" + tl
+	urls = urls + "&hl=" + tl
+	for i := range t.dt {
+		urls = urls + "&dt=" + t.dt[i]
+	}
+	//urls = urls + "&ie=UTF-8"
+	//urls = urls + "&oe=UTF-8"
+	//urls = urls + "&otf=1"
+	//urls = urls + "&ssel=0"
+	//urls = urls + "&tsel=0"
+	//urls = urls + "&kc=7"
+	urls = urls + "&q=" + url.QueryEscape(t.str)
+	urls = urls + "&tk=" + t.tk()
+
+	return urls
+}
+func (t *Translate) To(tl string) (string, error) {
+	r := get(t.url(tl))
+
+	var e error
+	if r[0] != '[' {
+		log.Panicln("server deny!")
+		e = errors.New("DENY")
+	}
+
+	j, _ := toJson(r, 0)
+
+	j = strings.Replace(strings.Replace(j, "]", "}", -1), "[", "{", -1)
+	p := gjson.Parse(j)
+
+	return p.Get("0.0.0").String(), e
+}
+func (t *Translate) SetSl(sl string) *Translate {
+	t.sl = sl
+
+	return t
+}
+
+/*func Translate(str string, from string, to string, dt []string) string {
+	toJson(gtra(str, from, to, dt))
+}*/
 
 /**************************\
  * Base for get remote src*
@@ -64,7 +133,7 @@ func dataLoad(body io.ReadCloser) []byte {
 /**************************\
  *       translate        *
 \**************************/
-func gtra(tra string, from string, to string, dt []string) string {
+/*func gtra(tra string, from string, to string, dt []string) string {
 
 	tkka, tkkb := gettkk()
 	tka, tkb := gettk(int32(tkka), int32(tkkb), tra)
@@ -80,7 +149,7 @@ func gtra(tra string, from string, to string, dt []string) string {
 	_url += ("&tk=" + strconv.FormatInt(int64(tka), 10) + "." + strconv.FormatInt(int64(tkb), 10))
 
 	return get(_url)
-}
+}*/
 
 /**************************\
  * 	   calculate tk       *
@@ -147,3 +216,63 @@ func xr(a int32, b string) int32 {
 	}
 	return a
 }
+
+/**************************\
+ * 	        parse         *
+\**************************/
+func toJson(str string, i int) (string, int) {
+	_str := ""
+
+	if str[i] == '[' {
+		i++
+	}
+	n := 0
+	l := i
+
+	for ; i < len(str); i++ {
+		if str[i] == ',' {
+			_str = _str + "\"" + strconv.Itoa(n) + "\":" + str[l:i+1]
+			n++
+			l = i + 1
+		} else if str[i] == ']' {
+			_str = _str + "\"" + strconv.Itoa(n) + "\":" + str[l:i+1] + ","
+			break
+		} else if str[i] == '[' {
+			_s, _i := toJson(str, i)
+
+			i = _i + 1
+			l = i + 1
+
+			_str = _str + "\"" + strconv.Itoa(n) + "\":" + _s
+			n++
+		}
+	}
+	_str = "[" + _str
+
+	return _str, i
+}
+
+/*func toJson(list string) string {
+	var l string
+	for i := 0; i < len(list); i++ {
+		if list[i] == '[' {
+			l = list[0:i+1] + "\"0\":" + list[i+1:]
+			list = l
+		}
+	}
+	n := 0
+	for i := 0; i < len(list); i++ {
+
+		if list[i] == ',' {
+			n++
+			l = list[0:i+1] + "\"" + strconv.Itoa(n) + "\":" + list[i+1:]
+			list = l
+		}
+
+		if i < len(list)-1 && list[i+1] == '[' {
+			n = 0
+		}
+	}
+	return strings.Replace(strings.Replace(l, "]", "}", -1), "[", "{", -1)
+
+}*/
