@@ -28,7 +28,7 @@ import (
 )
 
 func main() {
-	t := gtra.NewTra("wide")
+	t := gtra.NewTra("hello world!")
 	s, err := t.To(lang.ZHCN)
 	if err != nil {
 	} else {
