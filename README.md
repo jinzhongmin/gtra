@@ -57,4 +57,4 @@ func (t *Translate) SetSl(sl string) *Translate
  
 ## License
 
-MIT © Matheus Fernandes
+MIT
