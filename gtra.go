@@ -3,7 +3,7 @@ package gtra
 import (
 	"errors"
 	"github.com/tidwall/gjson"
-	"gtra/lang"
+	"github.com/jinzhongmin/gtra/lang"
 	"io"
 	"log"
 	"net/http"
