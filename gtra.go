@@ -2,9 +2,9 @@ package gtra
 
 import (
 	"errors"
-	"github.com/tidwall/gjson"
 	"github.com/jinzhongmin/gtra/lang"
-	"io"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -18,7 +18,6 @@ type Translate struct {
 
 	sl string
 	tl string
-	dt []string
 }
 
 func NewTra(str string) *Translate {
@@ -27,7 +26,6 @@ func NewTra(str string) *Translate {
 
 	t.sl = lang.AUTO
 	t.tl = lang.ZHCN
-	t.dt = []string{"at", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t"}
 
 	return t
 
@@ -38,15 +36,15 @@ func (t *Translate) tk() string {
 
 	return (strconv.Itoa(int(tki)) + "." + strconv.Itoa(int(tkf)))
 }
-func (t *Translate) url(tl string) string {
+func (t *Translate) url(tl string, dt []string) string {
 	urls := "https://translate.google.cn/translate_a/single?"
 
 	urls = urls + "&client=gtx"
 	urls = urls + "&sl=" + t.sl
 	urls = urls + "&tl=" + tl
 	urls = urls + "&hl=" + tl
-	for i := range t.dt {
-		urls = urls + "&dt=" + t.dt[i]
+	for i := range dt {
+		urls = urls + "&dt=" + dt[i]
 	}
 	//urls = urls + "&ie=UTF-8"
 	//urls = urls + "&oe=UTF-8"
@@ -60,25 +58,99 @@ func (t *Translate) url(tl string) string {
 	return urls
 }
 func (t *Translate) To(tl string) (string, error) {
-	r := get(t.url(tl))
+	r := get(t.url(tl, []string{"t"}))
 
-	var e error
 	if r[0] != '[' {
 		log.Panicln("server deny!")
-		e = errors.New("DENY")
+		e := errors.New("DENY")
+		return "", e
 	}
 
-	j, _ := toJson(r, 0)
+	/*	j, _ := toJson(r, 0)
 
-	j = strings.Replace(strings.Replace(j, "]", "}", -1), "[", "{", -1)
-	p := gjson.Parse(j)
+		j = strings.Replace(strings.Replace(j, "]", "}", -1), "[", "{", -1)*/
+	p := gjson.Parse(r)
 
-	return p.Get("0.0.0").String(), e
+	return p.Get("0.0.0").String(), nil
 }
 func (t *Translate) SetSl(sl string) *Translate {
 	t.sl = sl
 
 	return t
+}
+func (t *Translate) GetSynonyms(tl string) ([]string, error) {
+
+	r := get(t.url(tl, []string{"t", "at"}))
+
+	if r[0] != '[' {
+		log.Panicln("server deny!")
+		e := errors.New("DENY")
+		return []string{""}, e
+	}
+	/*	j, _ := toJson(r, 0)
+
+		j = strings.Replace(strings.Replace(j, "]", "}", -1), "[", "{", -1)*/
+	p := gjson.Parse(r)
+	var ats []string
+
+	p.Get("5.0.2").ForEach(func(key gjson.Result, value gjson.Result) bool {
+		ats = append(ats, value.Get("0").String())
+
+		return true
+	})
+	return ats, nil
+}
+
+func (t *Translate) GetExamples(tl string) ([]string, error) {
+
+	r := get(t.url(tl, []string{"t", "ex"}))
+
+	if r[0] != '[' {
+		log.Panicln("server deny!")
+		e := errors.New("DENY")
+		return []string{""}, e
+	}
+
+	p := gjson.Parse(r)
+
+	var exs []string
+
+	p.Get("13.0").ForEach(func(key gjson.Result, value gjson.Result) bool {
+		_s := strings.Replace(value.Get("0").String(), "<b>", "[", -1)
+		s := strings.Replace(_s, "</b>", "]", -1)
+		exs = append(exs, s)
+
+		return true
+	})
+
+	return exs, nil
+}
+
+func (t *Translate) GetAcceptation(tl string) (map[string][]string, error) {
+
+	r := get(t.url(tl, []string{"t", "md"}))
+
+	if r[0] != '[' {
+		log.Panicln("server deny!")
+		e := errors.New("DENY")
+		return nil, e
+	}
+	/*	j, _ := toJson(r, 0)
+
+		j = strings.Replace(strings.Replace(j, "]", "}", -1), "[", "{", -1)*/
+	p := gjson.Parse(r)
+
+	mds := make(map[string][]string)
+
+	p.Get("12").ForEach(func(key gjson.Result, value gjson.Result) bool {
+		value.Get("1").ForEach(func(_key gjson.Result, _value gjson.Result) bool {
+			mds[value.Get("0").String()] = append(mds[value.Get("0").String()], _value.Get("0").String())
+			return true
+		})
+
+		return true
+	})
+	return mds, nil
 }
 
 /*func Translate(str string, from string, to string, dt []string) string {
@@ -102,8 +174,11 @@ func get(url string) string {
 		log.Panicln(err)
 	}
 
-	return string(dataLoad(ret.Body))
+	d, _ := ioutil.ReadAll(ret.Body)
+	return string(d)
 }
+
+/*
 func dataLoad(body io.ReadCloser) []byte {
 
 	data := make([]byte, 0)
@@ -129,6 +204,7 @@ func dataLoad(body io.ReadCloser) []byte {
 
 	return data
 }
+*/
 
 /**************************\
  *       translate        *
@@ -220,7 +296,7 @@ func xr(a int32, b string) int32 {
 /**************************\
  * 	        parse         *
 \**************************/
-func toJson(str string, i int) (string, int) {
+/*func toJson(str string, i int) (string, int) {
 	_str := ""
 
 	if str[i] == '[' {
@@ -247,10 +323,10 @@ func toJson(str string, i int) (string, int) {
 			n++
 		}
 	}
-	_str = "[" + _str
+	_str = "[" + _str + "]"
 
 	return _str, i
-}
+}*/
 
 /*func toJson(list string) string {
 	var l string
