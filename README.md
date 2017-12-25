@@ -20,11 +20,10 @@ package main
 import (
 	"fmt"
 	"github.com/jinzhongmin/gtra"
-	"github.com/jinzhongmin/gtra/lang"
 )
 
 func main() {
-	t := gtra.NewTra("hello world!")
+	t := gtra.New("hello world!")
 	s, err := t.To(LangZHCN)
 	if err != nil {
 	} else {
@@ -37,7 +36,7 @@ func main() {
 
 
 ## 说明
-func NewTra(str string) *Translate
+func New(str string) *Translate
 
 func (t *Translate) To(tl string) (string, error)
 
