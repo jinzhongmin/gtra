@@ -2,7 +2,6 @@ package gtra
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"strconv"
 
@@ -18,12 +17,12 @@ type Translate struct {
 }
 
 //New ..
-func New(str string) *Translate {
+func New() *Translate {
 	t := new(Translate)
-	t.str = str
 
-	t.sl = LangAUTO
-	t.tl = LangZHCN
+	l := NewConstLang()
+	t.sl = l.AUTO
+	t.tl = l.ZHCN
 
 	return t
 
@@ -52,18 +51,16 @@ func (t *Translate) url(tl string, dt []string) string {
 }
 
 //To ..
-func (t *Translate) To(tl string) (string, error) {
+func (t *Translate) To(tl string, fn func(e error) string) string {
 	r := get(t.url(tl, []string{"t"}))
 
 	if r[0] != '[' {
-		log.Panicln("server deny!")
-		e := errors.New("DENY")
-		return "", e
+		return fn(errors.New("DENY"))
 	}
 
 	p := gjson.Parse(r)
 
-	return p.Get("0.0.0").String(), nil
+	return p.Get("0.0.0").String()
 }
 
 //From ..
@@ -73,15 +70,19 @@ func (t *Translate) From(sl string) *Translate {
 	return t
 }
 
-//TranslateBySelf ..
-func (t *Translate) TranslateBySelf(tl string, dt []string) (gjson.Result, error) {
+//Translate ..
+func (t *Translate) Translate(str string) *Translate {
+	t.str = str
+	return t
+}
+
+//BySelf ..
+func (t *Translate) BySelf(tl string, dt []string, fn func(e error) gjson.Result) gjson.Result {
 	r := get(t.url(tl, dt))
 
 	if r[0] != '[' {
-		log.Panicln("server deny!")
-		e := errors.New("DENY")
-		return gjson.Parse(""), e
+		return fn(errors.New("DENY"))
 	}
 
-	return gjson.Parse(r), nil
+	return gjson.Parse(r)
 }

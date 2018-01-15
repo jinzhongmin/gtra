@@ -19,16 +19,17 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/jinzhongmin/gtra"
 )
 
 func main() {
-	t := gtra.New("hello world!")
-	s, err := t.To(LangZHCN)
-	if err != nil {
-	} else {
-		fmt.Println(s)
-	}
+	t := gtra.New()
+	l := gtra.NewConstLang()
+	fmt.Println(t.Translate("Hello World！").To(l.ZHCN, func(e error) string {
+		return "IF ERROR ,DO IN THIS FUNCTION"
+	}))
+
 }
 
 ```
@@ -36,21 +37,8 @@ func main() {
 
 
 ## 说明
-func New(str string) *Translate
 
-func (t *Translate) To(tl string) (string, error)
-
-翻译到指定语言,有时服务器拒绝就会有错误
-
-func (t *Translate) From(sl string) *Translate
-
-指定要翻译的文本的语言，可以这样用
-```go
-	s , _ := t.From(lang.EN).To(lang.ZHCN)
-	fmt.Println(s)
-```
-
-func (t *Translate) TranslateBySelf(tl string, dt []string) (gjson.Result, error)
+func (t *Translate) BySelf(tl string, dt []string) (gjson.Result, error)
 
 TranslateBySelf提供自助翻译服务，dt参数自行google
 
