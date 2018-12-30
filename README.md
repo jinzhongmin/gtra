@@ -14,34 +14,41 @@ go get -u -v github.com/jinzhongmin/gtra
 
 ## 例子
 
-```go
+```golang
 package main
 
 import (
 	"fmt"
 
 	"github.com/jinzhongmin/gtra"
+	"github.com/jinzhongmin/gtra/lang"
 )
 
 func main() {
-	t := gtra.New()
-	l := gtra.NewConstLang()
-	fmt.Println(t.Translate("Hello World！").To(l.ZHCN, func(e error) string {
-		return "IF ERROR ,DO IN THIS FUNCTION"
-	}))
+	t := gtra.NewTranslater()
+	fmt.Println(t.Translate("hello"))
+	fmt.Println(gtra.Translate("world", lang.ZHCN))
 
+	fmt.Println(t.Vector(lang.ZHCN, lang.EN).Translate("你好世界"))
+	fmt.Println(t.To(lang.JA).Translate("你好世界"))
+
+	_, j := t.Vector(lang.EN, lang.ZHCN).Dt("like", "t", "at")
+	fmt.Println(j.String())
 }
+
 
 ```
 
 
 
-## 说明
+## api
 
-func (t *Translate) BySelf(tl string, dt []string) (gjson.Result, error)
+[api](https://godoc.org/github.com/jinzhongmin/gtra)
 
-TranslateBySelf提供自助翻译服务，dt参数自行google
+func (t *Translater) Dt(src string, dt ...string) (error, gjson.Result)
+
+dt参数请参考 [&](https://stackoverflow.com/questions/26714426/what-is-the-meaning-of-google-translate-query-params#answers)
 
 ## License
 
-MIT
+MIT © [jinzhongmin] (https://github.com/jinzhongmin)
