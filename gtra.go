@@ -10,13 +10,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jinzhongmin/errs"
-
 	"github.com/jinzhongmin/gtra/lang"
 	"github.com/tidwall/gjson"
 )
 
-var ERR_SERVER_DENY = errors.New("server deny.")
+var ERR_SERVER_DENY = errors.New("Server deny")
 var ERR_LANG_CODE_NOT_EXIST = errors.New("Language code does not exist")
 
 type Translater struct {
@@ -35,7 +33,7 @@ func (t *Translater) Vector(sl string, tl string) *Translater {
 	if lang.Verify(sl) {
 		t.sl = sl
 	} else {
-		errs.Warn(ERR_LANG_CODE_NOT_EXIST)
+		log.Println(ERR_LANG_CODE_NOT_EXIST)
 		t.sl = lang.AUTO
 	}
 
@@ -43,7 +41,7 @@ func (t *Translater) Vector(sl string, tl string) *Translater {
 		t.tl = tl
 		return t
 	}
-	errs.Warn(ERR_LANG_CODE_NOT_EXIST)
+	log.Println(ERR_LANG_CODE_NOT_EXIST)
 	return t
 }
 
@@ -52,7 +50,7 @@ func (t *Translater) To(tl string) *Translater {
 		t.tl = tl
 		return t
 	}
-	errs.Warn(ERR_LANG_CODE_NOT_EXIST)
+	log.Println(ERR_LANG_CODE_NOT_EXIST)
 	return t
 }
 
@@ -79,14 +77,14 @@ func Translate(src string, tl string, sl ...string) (error, string) {
 		if lang.Verify(sl[0]) {
 			t.sl = sl[0]
 		} else {
-			errs.Warn(ERR_LANG_CODE_NOT_EXIST)
+			log.Println(ERR_LANG_CODE_NOT_EXIST)
 			t.sl = lang.AUTO
 		}
 	}
 	if lang.Verify(tl) {
 		t.tl = tl
 	} else {
-		errs.Warn(ERR_LANG_CODE_NOT_EXIST)
+		log.Println(ERR_LANG_CODE_NOT_EXIST)
 	}
 
 	r := getResult(src, t.sl, t.tl, "t")
