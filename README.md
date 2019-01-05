@@ -51,4 +51,4 @@ dt参数请参考 [&](https://stackoverflow.com/questions/26714426/what-is-the-m
 
 ## License
 
-MIT © [jinzhongmin] (https://github.com/jinzhongmin)
+MIT © [jinzhongmin](https://github.com/jinzhongmin)
